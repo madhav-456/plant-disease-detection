@@ -16,6 +16,9 @@ except ImportError:
     Image = None
     TENSORFLOW_AVAILABLE = False
 
+# =========================
+# Flask App Init
+# =========================
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -28,6 +31,7 @@ try:
 except Exception as e:
     crop_model = None
     print("⚠️ Crop model not found:", e)
+
 
 @app.route("/predict-crop", methods=["POST"])
 def predict_crop():
@@ -48,6 +52,7 @@ def predict_crop():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # =========================
 # Fertilizer Recommendation
 # =========================
@@ -56,6 +61,7 @@ fertilizer_db = {
     "wheat": {"N": 120, "P": 45, "K": 45, "fertilizer": "Urea 120kg/acre, SSP 50kg/acre"},
     "maize": {"N": 85, "P": 55, "K": 60, "fertilizer": "Urea 90kg/acre, DAP 55kg/acre"},
 }
+
 
 @app.route("/predict-fertilizer", methods=["POST"])
 def predict_fertilizer():
@@ -79,6 +85,7 @@ def predict_fertilizer():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # =========================
 # Subsidy Finder
 # =========================
@@ -88,9 +95,11 @@ subsidy_schemes = [
     {"id": 3, "name": "Soil Health Card", "type": "Central", "description": "Soil test and guidance"},
 ]
 
+
 @app.route("/subsidies", methods=["GET"])
 def get_subsidies():
     return jsonify({"subsidy_schemes": subsidy_schemes})
+
 
 # =========================
 # Disease Detection (Safe Fallback)
@@ -114,10 +123,12 @@ remedies = {
     "healthy": "Plant is healthy, continue good practices"
 }
 
+
 def preprocess_image(image, target_size=(128, 128)):
     img = image.convert("RGB").resize(target_size)
     img_array = np.array(img) / 255.0
     return np.expand_dims(img_array, axis=0)
+
 
 @app.route("/detect-disease", methods=["POST"])
 def detect_disease():
@@ -145,12 +156,14 @@ def detect_disease():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # =========================
 # Health Check
 # =========================
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "✅ FarmAI backend running"})
+
 
 # =========================
 # Run
