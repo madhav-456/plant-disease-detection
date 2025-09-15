@@ -2,6 +2,7 @@ flask
 flask-cors
 numpy
 pillow
-tensorflow-cpu==2.20.0
 scikit-learn
 waitress
+
+
