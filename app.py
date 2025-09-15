@@ -3,21 +3,20 @@ from flask_cors import CORS
 import os
 import numpy as np
 import pickle
-import tensorflow as tf
-from PIL import Image
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ====================================================
-# Load Crop Recommendation Model (from app2.py)
+# Crop Recommendation (from app2.py)
 # ====================================================
 try:
-    crop_model = pickle.load(open(r"C:\Users\MADHAVAN\OneDrive\miniprojectfarm\model.pkl", "rb"))
+    crop_model = pickle.load(open("model.pkl", "rb"))
     print("✅ Crop model loaded:", type(crop_model))
 except Exception as e:
     crop_model = None
-    print("⚠️ Crop model not found. Error:", e)
+    print("⚠️ Crop model not found:", e)
+
 
 @app.route("/predict-crop", methods=["POST"])
 def predict_crop():
@@ -40,30 +39,27 @@ def predict_crop():
 
 
 # ====================================================
-# Load Disease Detection Model (from app1.py)
+# Disease Detection (from app1.py) with Fallback
 # ====================================================
-MODEL_PATH = os.path.join("data", "disease_model.h5")
-LABELS_PATH = os.path.join("data", "disease_classes.pkl")
+try:
+    import tensorflow as tf
+    from PIL import Image
+    TENSORFLOW_AVAILABLE = True
+except ImportError:
+    tf = None
+    Image = None
+    TENSORFLOW_AVAILABLE = False
 
-if os.path.exists(MODEL_PATH):
-    print("✅ Loading trained disease model...")
+if TENSORFLOW_AVAILABLE and os.path.exists("data/disease_model.h5"):
     try:
-        disease_model = tf.keras.models.load_model(MODEL_PATH)
+        print("✅ Loading disease model...")
+        disease_model = tf.keras.models.load_model("data/disease_model.h5")
     except Exception as e:
         print("⚠️ Could not load disease model:", e)
         disease_model = None
 else:
-    print("⚠️ No disease model found")
     disease_model = None
-
-if os.path.exists(LABELS_PATH):
-    with open(LABELS_PATH, "rb") as f:
-        class_indices = pickle.load(f)
-    idx_to_class = {v: k for k, v in class_indices.items()}
-    print(f"✅ Loaded {len(idx_to_class)} disease class labels")
-else:
-    idx_to_class = {}
-    print("⚠️ No disease labels found")
+    print("⚠️ TensorFlow not available — disease detection disabled.")
 
 remedies = {
     "Pepper__bell___Bacterial_spot": "Use disease-free seeds, avoid overhead watering, and apply copper-based fungicides.",
@@ -76,29 +72,36 @@ remedies = {
     "Tomato__Tomato_YellowLeaf__Curl_Virus": "Control whiteflies, remove infected plants, and use resistant varieties."
 }
 
-def preprocess_image(image, target_size=(128, 128)):
-    img = image.convert("RGB").resize(target_size)
-    img_array = np.array(img) / 255.0
-    return np.expand_dims(img_array, axis=0)
 
 @app.route("/detect-disease", methods=["POST"])
 def detect_disease():
+    if not disease_model:
+        return jsonify({
+            "disease": "Unknown",
+            "confidence": 0.0,
+            "remedy": "TensorFlow not available on free plan",
+            "status": "N/A"
+        }), 200
+
     if "image" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
+
     file = request.files["image"]
     try:
         image = Image.open(file.stream)
-        processed = preprocess_image(image)
-        if disease_model and idx_to_class:
-            preds = disease_model.predict(processed)[0]
-            idx = int(np.argmax(preds))
-            confidence = float(preds[idx])
-            disease = idx_to_class.get(idx, "Unknown")
-        else:
-            disease = "Unknown"
-            confidence = 0.0
+        img = image.convert("RGB").resize((128, 128))
+        img_array = np.array(img) / 255.0
+        processed = np.expand_dims(img_array, axis=0)
+
+        preds = disease_model.predict(processed)[0]
+        idx = int(np.argmax(preds))
+        confidence = float(preds[idx])
+        disease = "Unknown"
+        if idx in remedies:
+            disease = list(remedies.keys())[idx]
         remedy = remedies.get(disease, "No remedy info available.")
         status = "Good" if "healthy" in disease.lower() else "Bad"
+
         return jsonify({"disease": disease, "confidence": confidence, "remedy": remedy, "status": status})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -119,6 +122,7 @@ fertilizer_db = {
     "groundnut": {"N": 80, "P": 40, "K": 40, "fertilizer": "Gypsum (200 kg/acre), SSP (40 kg/acre), Potash (40 kg/acre)"},
     "soybean": {"N": 90, "P": 60, "K": 40, "fertilizer": "DAP (60 kg/acre), SSP (40 kg/acre), Potash (40 kg/acre)"}
 }
+
 
 @app.route("/predict-fertilizer", methods=["POST"])
 def predict_fertilizer():
@@ -150,6 +154,7 @@ subsidy_schemes = [
     {"id": 4, "name": "Soil Health Card Scheme", "type": "Central Sector", "description": "Provides soil health cards."},
     {"id": 5, "name": "PMKSY", "type": "Central Sector", "description": "Irrigation and 'More Crop Per Drop'."}
 ]
+
 
 @app.route("/subsidies", methods=["GET"])
 def get_subsidies():
