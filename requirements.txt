@@ -1,8 +1,6 @@
 flask
 flask-cors
 numpy
-pillow
 scikit-learn
+pillow
 waitress
-
-
