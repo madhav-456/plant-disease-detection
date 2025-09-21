@@ -1,0 +1,19 @@
+# prepare_crop_model.py
+import pickle
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+# ===== Sample crop prediction dataset =====
+# Features: [N, P, K, temperature, humidity, ph, rainfall]
+X = np.random.rand(100, 7) * 100
+y = np.random.choice(['rice', 'wheat', 'maize'], 100)
+
+# Train model
+crop_model = RandomForestClassifier()
+crop_model.fit(X, y)
+
+# Save model to .pkl
+with open("crop_model.pkl", "wb") as f:
+    pickle.dump(crop_model, f)
+
+print("✅ crop_model.pkl created")
