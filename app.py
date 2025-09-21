@@ -26,10 +26,11 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # Crop Recommendation Model
 # =========================
 try:
-    crop_model = pickle.load(open("model.pkl", "rb"))
-    print("✅ Crop model loaded:", type(crop_model))
+    crop_model = pickle.load(open("crop_model.pkl", "rb"))
+    label_encoder = pickle.load(open("label_encoder.pkl", "rb"))
+    print("✅ Crop model & encoder loaded")
 except Exception as e:
-    crop_model = None
+    crop_model, label_encoder = None, None
     print("⚠️ Crop model not found:", e)
 
 
@@ -46,7 +47,11 @@ def predict_crop():
         rainfall = float(data.get("rainfall"))
 
         features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-        prediction = crop_model.predict(features)[0] if crop_model else "DummyCrop"
+        if crop_model and label_encoder:
+            pred_idx = crop_model.predict(features)[0]
+            prediction = label_encoder.inverse_transform([pred_idx])[0]
+        else:
+            prediction = "DummyCrop"
 
         return jsonify({"recommended_crop": str(prediction)})
     except Exception as e:
@@ -102,7 +107,7 @@ def get_subsidies():
 
 
 # =========================
-# Disease Detection (Safe Fallback)
+# Disease Detection (Optional)
 # =========================
 if TENSORFLOW_AVAILABLE and os.path.exists("data/disease_model.h5"):
     try:
@@ -166,7 +171,8 @@ def home():
 
 
 # =========================
-# Run
+# Run App
 # =========================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=2025, debug=True)
+    # Use port 5000 instead of 2025
+    app.run(host="0.0.0.0", port=5000, debug=True)
