@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import pickle
@@ -19,7 +19,7 @@ except ImportError:
 # =========================
 # Flask App Init
 # =========================
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # =========================
@@ -163,16 +163,15 @@ def detect_disease():
 
 
 # =========================
-# Health Check
+# Serve Frontend
 # =========================
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "✅ FarmAI backend running"})
+@app.route("/")
+def index():
+    return send_from_directory("static", "index.html")
 
 
 # =========================
 # Run App
 # =========================
 if __name__ == "__main__":
-    # Use port 5000 instead of 2025
     app.run(host="0.0.0.0", port=5000, debug=True)
