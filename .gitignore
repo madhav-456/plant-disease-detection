@@ -1,4 +1,30 @@
+# Virtual environments
 venv/
 tfenv/
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# IDE/Editor files
+*.swp
+*.sublime-workspace
+*.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Sensitive files
+*.env
+
+# Large data files or model weights (optional)
+*.pkl
+*.h5
+*.model

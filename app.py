@@ -1,134 +1,177 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
-from PIL import Image
 import os
 import pickle
 import numpy as np
 
-# Optional: if you want deep learning model support
-from tensorflow.keras.models import load_model
-
-app = Flask(__name__)
-CORS(app)
-
-# -------- CONFIG --------
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ALLOWED_EXT = {"png", "jpg", "jpeg"}
-MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
-
-# -------- LOAD MODELS (if available) --------
-crop_model, label_encoder, disease_model, class_labels = None, None, None, None
-
+# =========================
+# Safe TensorFlow Import
+# =========================
 try:
-    with open("model.pkl", "rb") as f:
-        crop_model = pickle.load(f)
-    with open("crop_encoder.pkl", "rb") as f:
-        label_encoder = pickle.load(f)
-    print("✅ Crop model + encoder loaded.")
-except Exception as e:
-    print("⚠️ Crop model/encoder not found. Using fallback. Error:", e)
+    import tensorflow as tf
+    from PIL import Image
+    TENSORFLOW_AVAILABLE = True
+except ImportError:
+    tf = None
+    Image = None
+    TENSORFLOW_AVAILABLE = False
 
+# =========================
+# Flask App Init
+# =========================
+app = Flask(__name__, static_folder="static")
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+# =========================
+# Crop Recommendation Model
+# =========================
 try:
-    disease_model = load_model("disease_model.h5")
-    with open("disease_classes.pkl", "rb") as f:
-        disease_classes = pickle.load(f)
-    class_labels = {v: k for k, v in disease_classes.items()}
-    print("✅ Disease model loaded.")
+    crop_model = pickle.load(open("crop_model.pkl", "rb"))
+    label_encoder = pickle.load(open("label_encoder.pkl", "rb"))
+    print("✅ Crop model & encoder loaded")
 except Exception as e:
-    print("⚠️ Disease model not found. Using demo fallback. Error:", e)
+    crop_model, label_encoder = None, None
+    print("⚠️ Crop model not found:", e)
 
 
-# -------- AI Assistant (Chatbot) --------
-faq_data = {
-    "fertilizer": "For leafy crops, use nitrogen-rich fertilizers like urea. For fruiting crops, add potassium-based fertilizers.",
-    "pest": "Use neem oil spray or organic pesticides to control common pests.",
-    "irrigation": "Drip irrigation saves water and improves crop yield compared to flood irrigation.",
-    "wheat": "Wheat grows best in cool weather with well-drained loamy soil.",
-    "rice": "Rice requires standing water and clayey soil with proper drainage."
-}
-
-@app.route("/ask-ai", methods=["POST"])
-def ask_ai():
-    data = request.get_json()
-    if not data or "message" not in data:
-        return jsonify({"error": "Message is required"}), 400
-
-    user_message = data["message"].lower()
-
-    # Rule-based farming answers
-    for keyword, answer in faq_data.items():
-        if keyword in user_message:
-            return jsonify({"reply": answer})
-
-    # Fallback response if no match
-    return jsonify({"reply": f"I’m not sure about that. Please consult your local agriculture officer for: {user_message}"})
-
-
-# -------- Disease Detection (image upload) --------
-@app.route("/detect-disease", methods=["POST"])
-def detect_disease():
-    if "image" not in request.files:
-        return jsonify({"error": "Upload image with field name 'image'."}), 400
-
-    file = request.files["image"]
-    if file.filename == "" or not allowed_file(file.filename):
-        return jsonify({"error": "Invalid file. Upload JPG/PNG under 5MB."}), 400
-
-    filename = secure_filename(file.filename)
-    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(path)
-
-    try:
-        img = Image.open(path).convert("RGB").resize((128, 128))
-        arr = np.array(img) / 255.0
-        arr = arr.reshape(1, 128, 128, 3)
-
-        if disease_model and class_labels:
-            pred = disease_model.predict(arr)
-            idx = int(np.argmax(pred))
-            disease_name = class_labels[idx]
-            confidence = float(np.max(pred))
-            return jsonify({"disease": disease_name, "confidence": confidence})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-    # fallback demo
-    return jsonify({
-        "disease": "Leaf Blight",
-        "confidence": 0.8,
-        "remedies": ["Remove infected leaves", "Spray fungicide", "Maintain proper irrigation"]
-    })
-
-
-# -------- Crop Recommendation --------
 @app.route("/predict-crop", methods=["POST"])
 def predict_crop():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "Provide soil/climate details"}), 400
-
     try:
-        features = np.array([[data.get("N", 0), data.get("P", 0), data.get("K", 0),
-                              data.get("temperature", 25), data.get("humidity", 50),
-                              data.get("ph", 6.5), data.get("rainfall", 100)]])
+        data = request.get_json()
+        N = float(data.get("N"))
+        P = float(data.get("P"))
+        K = float(data.get("K"))
+        temperature = float(data.get("temperature"))
+        humidity = float(data.get("humidity"))
+        ph = float(data.get("ph"))
+        rainfall = float(data.get("rainfall"))
+
+        features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
         if crop_model and label_encoder:
-            pred = crop_model.predict(features)
-            crop = label_encoder.inverse_transform(pred)[0]
-            return jsonify({"recommended_crop": crop})
+            pred_idx = crop_model.predict(features)[0]
+            prediction = label_encoder.inverse_transform([pred_idx])[0]
+        else:
+            prediction = "DummyCrop"
+
+        return jsonify({"recommended_crop": str(prediction)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    # fallback demo
-    return jsonify({"recommended_crop": "Rice"})
+
+# =========================
+# Fertilizer Recommendation
+# =========================
+fertilizer_db = {
+    "rice": {"N": 90, "P": 40, "K": 40, "fertilizer": "Urea 100kg/acre, DAP 50kg/acre"},
+    "wheat": {"N": 120, "P": 45, "K": 45, "fertilizer": "Urea 120kg/acre, SSP 50kg/acre"},
+    "maize": {"N": 85, "P": 55, "K": 60, "fertilizer": "Urea 90kg/acre, DAP 55kg/acre"},
+}
 
 
-# -------- Run Server --------
+@app.route("/predict-fertilizer", methods=["POST"])
+def predict_fertilizer():
+    try:
+        N = float(request.form.get("N"))
+        P = float(request.form.get("P"))
+        K = float(request.form.get("K"))
+        crop = request.form.get("crop").lower()
+
+        if crop in fertilizer_db:
+            rec = fertilizer_db[crop]
+            return jsonify({
+                "crop": crop,
+                "ideal_N": rec["N"],
+                "ideal_P": rec["P"],
+                "ideal_K": rec["K"],
+                "recommended_fertilizer": rec["fertilizer"]
+            })
+        else:
+            return jsonify({"error": "Crop not found"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# =========================
+# Subsidy Finder
+# =========================
+subsidy_schemes = [
+    {"id": 1, "name": "PM-KISAN", "type": "Central", "description": "₹6000 annually to farmers"},
+    {"id": 2, "name": "PMFBY", "type": "Central", "description": "Crop insurance scheme"},
+    {"id": 3, "name": "Soil Health Card", "type": "Central", "description": "Soil test and guidance"},
+]
+
+
+@app.route("/subsidies", methods=["GET"])
+def get_subsidies():
+    return jsonify({"subsidy_schemes": subsidy_schemes})
+
+
+# =========================
+# Disease Detection (Optional)
+# =========================
+if TENSORFLOW_AVAILABLE and os.path.exists("data/disease_model.h5"):
+    try:
+        disease_model = tf.keras.models.load_model("data/disease_model.h5")
+        with open("data/disease_classes.pkl", "rb") as f:
+            class_indices = pickle.load(f)
+        idx_to_class = {v: k for k, v in class_indices.items()}
+        print("✅ Disease model loaded")
+    except Exception as e:
+        print("⚠️ Could not load disease model:", e)
+        disease_model, idx_to_class = None, {}
+else:
+    disease_model, idx_to_class = None, {}
+
+remedies = {
+    "Tomato_Early_blight": "Remove affected leaves, spray fungicide",
+    "Potato_Late_blight": "Use copper fungicides, avoid waterlogging",
+    "healthy": "Plant is healthy, continue good practices"
+}
+
+
+def preprocess_image(image, target_size=(128, 128)):
+    img = image.convert("RGB").resize(target_size)
+    img_array = np.array(img) / 255.0
+    return np.expand_dims(img_array, axis=0)
+
+
+@app.route("/detect-disease", methods=["POST"])
+def detect_disease():
+    if not disease_model:
+        return jsonify({
+            "disease": "Unknown",
+            "remedy": "⚠️ TensorFlow not available on free plan",
+            "status": "N/A"
+        }), 200
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    try:
+        file = request.files["image"]
+        image = Image.open(file.stream)
+        processed = preprocess_image(image)
+        preds = disease_model.predict(processed)[0]
+        idx = int(np.argmax(preds))
+        disease = idx_to_class.get(idx, "Unknown")
+        remedy = remedies.get(disease, "No remedy available")
+        status = "Good" if "healthy" in disease.lower() else "Bad"
+
+        return jsonify({"disease": disease, "remedy": remedy, "status": status})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# =========================
+# Serve Frontend
+# =========================
+@app.route("/")
+def index():
+    return send_from_directory("static", "index.html")
+
+
+# =========================
+# Run App
+# =========================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
