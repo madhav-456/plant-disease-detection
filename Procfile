@@ -1,2 +1,1 @@
-web: waitress-serve --listen=0.0.0.0:$PORT app:app
-
+web: waitress-serve --listen=0.0.0.0:$PORT miniprojectfarm.app:app
