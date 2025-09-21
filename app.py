@@ -34,46 +34,39 @@ except Exception as e:
     disease_model = None
     print(f"⚠️ Failed to load disease model: {e}")
 
-
 # ===== Routes =====
 @app.route("/")
 def home():
-    return render_template("index.html")  # Make sure you have index.html in /templates
-
+    return render_template("index.html")  # Make sure index.html exists in /templates
 
 @app.route("/predict_crop", methods=["POST"])
 def predict_crop():
     if crop_model is None:
         return jsonify({"error": "Crop model not loaded"}), 500
     data = request.json
-    # Replace with your actual prediction logic
     prediction = crop_model.predict([data["features"]])
     return jsonify({"prediction": prediction.tolist()})
-
 
 @app.route("/predict_fertilizer", methods=["POST"])
 def predict_fertilizer():
     if fertilizer_model is None:
         return jsonify({"error": "Fertilizer model not loaded"}), 500
     data = request.json
-    # Replace with your actual prediction logic
     prediction = fertilizer_model.predict([data["features"]])
     return jsonify({"prediction": prediction.tolist()})
-
 
 @app.route("/predict_disease", methods=["POST"])
 def predict_disease():
     if disease_model is None:
         return jsonify({"error": "Disease model not loaded"}), 500
     data = request.json
-    # Replace with your actual image preprocessing
     img_array = tf.convert_to_tensor(data["image"])
     img_array = tf.expand_dims(img_array, 0)  # Add batch dimension
     prediction = disease_model.predict(img_array)
     return jsonify({"prediction": prediction.tolist()})
 
-
 # ===== Run server =====
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render sets PORT
+    # Use Render's PORT environment variable if provided
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
