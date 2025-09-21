@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EasyFarm | Future of Farming</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; background-color: #f9fafb; }
+    .hero-gradient { background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%); }
+    .tech-card { backdrop-filter: blur(10px); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+    .pulse-animation { animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+                       70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(74,222,128,0); }
+                       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+    .glow-text { text-shadow: 0 0 10px rgba(74,222,128,0.7); }
+    .drone-animation { animation: droneFloat 8s ease-in-out infinite; }
+    @keyframes droneFloat { 0%,100% { transform: translateY(0) rotate(-5deg); }
+                            50% { transform: translateY(-20px) rotate(5deg); } }
+
+    /* AI Assistant styles */
+    #chatBox::-webkit-scrollbar { width: 8px; }
+    #chatBox::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    #chatBox::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 10px; }
+    .chat-message { opacity: 0; transform: translateY(10px); animation: fadeIn 0.4s forwards; }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm fixed w-full z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center">
+          <a href="index.html" class="flex items-center">
+            <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-gray-800">Easy<span class="text-green-500">Farm</span></span>
+          </a>
+        </div>
+        <!-- Desktop Links -->
+        <div class="hidden md:flex md:items-center md:space-x-8">
+          <a href="index.html" class="text-gray-900 hover:text-green-500">Home</a>
+          <a href="#ai-assistant" class="text-gray-500 hover:text-green-500">AI Assistant</a>
+          <a href="DiseasePrediction.html" class="text-gray-500 hover:text-green-500">Disease Detection</a>
+          <a href="Crop_recommendation.html" class="text-gray-500 hover:text-green-500">Crop Recommendation</a>
+          <a href="Fertilizer_recommendation.html" class="text-gray-500 hover:text-green-500">Fertilizer Advisor</a>
+          <a href="subsidy.html" class="text-gray-500 hover:text-green-500">Subsidy Finder</a>
+        </div>
+        <div class="hidden md:flex items-center">
+          <a href="#ai-assistant">
+            <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+              Get Started
+            </button>
+          </a>
+        </div>
+        <!-- Mobile -->
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="p-2 text-gray-600"><i class="fas fa-bars text-xl"></i></button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200">
+      <div class="px-4 py-3 space-y-2">
+        <a href="index.html" class="block">Home</a>
+        <a href="#ai-assistant" class="block">AI Assistant</a>
+        <a href="DiseasePrediction.html" class="block">Disease Detection</a>
+        <a href="Crop_recommendation.html" class="block">Crop Recommendation</a>
+        <a href="Fertilizer_recommendation.html" class="block">Fertilizer Advisor</a>
+        <a href="subsidy.html" class="block">Subsidy Finder</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-gradient pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-white">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center">
+      <div class="md:w-1/2">
+        <h1 class="text-5xl font-bold mb-6 glow-text">The Future of <span class="text-green-300">Smart Farming</span></h1>
+        <p class="text-lg mb-8">Harnessing AI, IoT, and drone technology to maximize yields with minimal resources.</p>
+        <a href="#ai-assistant" class="bg-white text-green-600 px-6 py-3 rounded-md font-medium">Try AI Assistant</a>
+      </div>
+      <div class="md:w-1/2 mt-10 md:mt-0">
+        <img src="https://images.unsplash.com/photo-1581093458171-2b1d7a1ba0c6?auto=format&fit=crop&w=1470&q=80"
+             class="rounded-xl shadow-2xl border-4 border-white drone-animation"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div class="p-6 border rounded-xl"><i class="fas fa-robot text-green-500 text-3xl mb-2"></i><h3 class="text-xl font-bold">150+</h3><p>AI-Powered Farms</p></div>
+      <div class="p-6 border rounded-xl"><i class="fas fa-chart-line text-blue-500 text-3xl mb-2"></i><h3 class="text-xl font-bold">30%</h3><p>Higher Yields</p></div>
+      <div class="p-6 border rounded-xl"><i class="fas fa-water text-yellow-500 text-3xl mb-2"></i><h3 class="text-xl font-bold">50%</h3><p>Water Savings</p></div>
+      <div class="p-6 border rounded-xl"><i class="fas fa-sun text-purple-500 text-3xl mb-2"></i><h3 class="text-xl font-bold">24/7</h3><p>Monitoring</p></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto text-center">
+      <h2 class="text-4xl font-bold mb-6">Smart Farming Tools</h2>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <i class="fas fa-robot text-5xl text-green-500 mb-4"></i>
+        <h3 class="font-bold text-xl mb-2">AI Assistant</h3>
+        <p class="text-gray-600">Ask anything about farming with type or voice input.</p>
+        <a href="#ai-assistant" class="text-green-500 font-medium">Try Now →</a>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <i class="fas fa-bug text-5xl text-red-500 mb-4"></i>
+        <h3 class="font-bold text-xl mb-2">Disease Detection</h3>
+        <p class="text-gray-600">Upload crop images to detect diseases early.</p>
+        <a href="DiseasePrediction.html" class="text-green-500 font-medium">Detect Now →</a>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <i class="fas fa-seedling text-5xl text-blue-500 mb-4"></i>
+        <h3 class="font-bold text-xl mb-2">Crop Recommendation</h3>
+        <p class="text-gray-600">Find the best crops for your soil & climate.</p>
+        <a href="Crop_recommendation.html" class="text-green-500 font-medium">Predict Now →</a>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <i class="fas fa-prescription-bottle-alt text-5xl text-purple-500 mb-4"></i>
+        <h3 class="font-bold text-xl mb-2">Fertilizer Advisor</h3>
+        <p class="text-gray-600">Get the right fertilizer mix for your crops.</p>
+        <a href="Fertilizer_recommendation.html" class="text-green-500 font-medium">Get Advice →</a>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <i class="fas fa-hand-holding-usd text-5xl text-yellow-500 mb-4"></i>
+        <h3 class="font-bold text-xl mb-2">Subsidy Finder</h3>
+        <p class="text-gray-600">Check available farming subsidies and grants.</p>
+        <a href="subsidy.html" class="text-green-500 font-medium">Check Eligibility →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ AI Assistant integrated -->
+  <section id="ai-assistant" class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-green-50 to-blue-50">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="text-4xl font-bold glow-text"><i class="fas fa-robot text-green-500 mr-2"></i> AI Farming Assistant</h2>
+        <p class="text-lg text-gray-600">Ask about crops, fertilizers, subsidies, or weather. Type or use voice 🎤.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-2xl border p-6">
+        <div id="chatBox" class="h-96 overflow-y-auto mb-4 space-y-4 p-3 bg-gray-50 rounded-xl border"></div>
+        <div class="flex items-center space-x-2">
+          <input id="userInput" type="text" placeholder="Type your question..." 
+                 class="flex-grow border rounded-full px-4 py-3 focus:ring-2 focus:ring-green-400 shadow-sm"/>
+          <button id="sendBtn" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-full shadow-lg">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <button id="voiceBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg">
+            <i class="fas fa-microphone"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+      <p>© 2025 EasyFarm. All rights reserved.</p>
+      <div class="space-x-6">
+        <a href="#" class="hover:text-green-400">Privacy Policy</a>
+        <a href="#" class="hover:text-green-400">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // Mobile menu toggle
+  document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+    document.getElementById("mobileMenu").classList.toggle("hidden");
+  });
+
+  // Chat logic
+  const chatBox = document.getElementById("chatBox");
+  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const voiceBtn = document.getElementById("voiceBtn");
+
+  function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = `chat-message ${sender==="user" ? "text-right" : "text-left"}`;
+    div.innerHTML = `<span class="inline-block px-4 py-2 rounded-2xl ${
+      sender==="user" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800"
+    }">${text}</span>`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    userInput.value = "";
+
+    // show typing...
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "chat-message text-left";
+    typingDiv.id = "typing";
+    typingDiv.innerHTML = `<span class="inline-block px-4 py-2 rounded-2xl bg-gray-200 text-gray-800">🤖 Typing...</span>`;
+    chatBox.appendChild(typingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+      const res = await fetch("http://127.0.0.1:5000/ask-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      document.getElementById("typing").remove();
+      if (data.reply) {
+        addMessage("🤖 EasyFarm AI: " + data.reply, "bot");
+      } else {
+        addMessage("⚠️ No reply from server.", "bot");
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById("typing").remove();
+      addMessage("❌ Error connecting to AI server.", "bot");
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  userInput.addEventListener("keypress", (e) => { if (e.key==="Enter") sendMessage(); });
+
+  // Voice input
+  voiceBtn.addEventListener("click", () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Voice not supported in this browser");
+      return;
+    }
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.start();
+    recognition.onresult = (event) => {
+      userInput.value = event.results[0][0].transcript;
+      sendMessage();
+    };
+  });
+</script>
+</body>
+</html>

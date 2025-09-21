@@ -1,0 +1,49 @@
+🌱 Crop-related
+
+“Which crop grows best in loamy soil?”
+
+“Is wheat suitable for winter season?”
+
+“Can I grow rice in low rainfall areas?”
+
+🌿 Fertilizer-related
+
+“What fertilizer should I use for wheat?”
+
+“Best organic fertilizer for tomatoes?”
+
+“How much nitrogen does rice need?”
+
+🐛 Pest & Disease
+
+“How to control aphids in cotton?”
+
+“Remedy for leaf blight in maize?”
+
+“How to protect paddy from stem borer?
+
+
+Crop Recommendation:
+cd C:\Users\MADHAVAN\OneDrive\miniprojectfarm
+py -m http.server 5500
+Rice":       [90, 40, 40, 25.5, 85.2, 6.5, 200],
+        "Cotton":     [100, 50, 50, 35.0, 60.0, 7.0, 80],
+        "Wheat":      [120, 45, 45, 20.0, 65.0, 6.8, 120],
+        "Banana":     [60, 40, 50, 28.0, 90.0, 6.2, 200],
+        "Maize":      [85, 55, 60, 27.0, 70.0, 6.5, 150],
+        "Sugarcane":  [100, 60, 50, 30.0, 80.0, 6.8, 250],
+        "Tomato":     [50, 40, 50, 22.0, 65.0, 6.0, 100],
+        "Potato":     [110, 50, 45, 18.0, 70.0, 5.5, 120],
+        "Groundnut":  [80, 40, 40, 26.0, 60.0, 6.2, 90]
+Fertilizer_recommendation:
+Crop	Input N	Input P	Input K	
+Rice	90	40	40	
+Wheat	120	45	45	
+Maize	85	55	60
+Sugarcane	100	60	50	
+Cotton	100	50	50	
+Banana	60	40	50
+Tomato	50	40	50	
+Potato	110	50	45	
+Groundnut	80	40	40	
+Soybean	90	60	40	

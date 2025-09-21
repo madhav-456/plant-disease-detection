@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fertilizer Recommendation | EasyFarm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f9fafb; }
+    .hero-gradient { background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%); background-attachment: fixed; }
+    .glow-text { text-shadow: 0 0 10px rgba(74, 222, 128, 0.7); }
+    .card { transition: transform 0.3s, box-shadow 0.3s; }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm fixed w-full z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+          <span class="text-xl font-bold text-gray-800">Easy<span class="text-green-500">Farm</span></span>
+        </div>
+        <div class="hidden md:flex md:items-center md:space-x-6">
+          <a href="index.html" class="text-gray-500 hover:text-green-500 px-3 py-2 text-sm font-medium">Home</a>
+          <a href="ai_assistant.html" class="text-gray-500 hover:text-green-500 px-3 py-2 text-sm font-medium">AI Assistant</a>
+          <a href="DiseasePrediction.html" class="text-gray-500 hover:text-green-500 px-3 py-2 text-sm font-medium">Disease Detection</a>
+          <a href="Crop_recommendation.html" class="text-gray-500 hover:text-green-500 px-3 py-2 text-sm font-medium">Crop Recommendation</a>
+          <a href="Fertilizer_recommendation.html" class="text-green-500 px-3 py-2 text-sm font-medium">Fertilizer Advisor</a>
+          <a href="subsidy.html" class="text-gray-500 hover:text-green-500 px-3 py-2 text-sm font-medium">Subsidy Finder</a>
+        </div>
+        <div class="flex items-center">
+          <a href="index.html">
+            <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300">
+              Get Started
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-gradient pt-32 pb-20 px-6 text-white">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-bold glow-text mb-4">Fertilizer Recommendation System</h1>
+      <p class="text-lg opacity-90">Get the best fertilizer suggestions for your crops based on soil and environmental data.</p>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section class="py-16 px-6">
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 card">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Enter Soil and Crop Details</h2>
+      <form action="http://localhost:2025/predict-fertilizer" method="POST" class="space-y-6">
+        
+        <div>
+          <label class="block text-gray-700 mb-2">Nitrogen (N)</label>
+          <input type="number" name="N" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 mb-2">Phosphorus (P)</label>
+          <input type="number" name="P" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 mb-2">Potassium (K)</label>
+          <input type="number" name="K" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 mb-2">Crop Type</label>
+          <select name="crop" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+            <option value="">-- Select Crop --</option>
+            <option value="rice">Rice</option>
+            <option value="wheat">Wheat</option>
+            <option value="maize">Maize</option>
+            <option value="sugarcane">Sugarcane</option>
+            <option value="cotton">Cotton</option>
+          </select>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-md font-medium transition duration-300">
+            Get Recommendation
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8 text-center">
+    <p class="text-gray-400">© 2025 EasyFarm. All rights reserved.</p>
+  </footer>
+</body>
+</html>
