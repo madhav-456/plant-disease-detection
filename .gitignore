@@ -1,4 +1,5 @@
 venv/
+<<<<<<< HEAD
 __pycache__/
 *.pyc
 *.pyo
@@ -10,3 +11,8 @@ dataset/
 dataset_small/
 .DS_Store
 *.crdownload
+=======
+tfenv/
+__pycache__/
+*.pyc
+>>>>>>> 2afb14f6eda54404cb89b66f716780a69046777a

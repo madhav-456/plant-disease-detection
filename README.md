@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ## Plant Disease Detection System
 **Overview**
@@ -87,3 +88,17 @@ Aruindam Bose(HTML 5, CSS 3)
 •https://www.kaggle.com \
 •https://www.OpenAi.com
 
+=======
+## 📂 Dataset
+
+This project uses the **PlantVillage Dataset** for training and testing plant disease detection models.
+
+- The dataset is very large (≈2GB), so it is **not included in this repository**.
+- You can download it from Kaggle:
+
+👉 [PlantVillage Dataset on Kaggle](https://www.kaggle.com/datasets/emmarex/plantdisease)
+
+After downloading:
+- Place the `train/` and `test/` folders inside the `data/` directory of this project:
+
+>>>>>>> 2afb14f6eda54404cb89b66f716780a69046777a
