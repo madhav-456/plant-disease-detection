@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.h5
+*.json
+*.pkl
+dataset/
+dataset_small/
+.DS_Store
+*.crdownload
