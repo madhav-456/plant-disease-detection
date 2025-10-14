@@ -355,7 +355,7 @@
             analyzeBtn.disabled = true;
 
             try {
-                const response = await fetch('http://localhost:2025/predict', {
+                const response = await fetch('/predict', {
                     method: 'POST',
                     body: formData
                 });
