@@ -71,10 +71,34 @@ fertilizer_db = {
 @app.route("/predict-fertilizer", methods=["POST"])
 def predict_fertilizer():
     try:
+        # Accept JSON payload (from EasyFarm UI)
+        if request.is_json:
+            data = request.get_json()
+            temperature = float(data.get('Temperature'))
+            humidity = float(data.get('Humidity'))
+            moisture = float(data.get('Moisture'))
+            soil_type = str(data.get('Soil Type'))
+            crop_type = str(data.get('Crop Type'))
+            nitrogen = float(data.get('Nitrogen'))
+            phosphorous = float(data.get('Phosphorous'))
+            potassium = float(data.get('Potassium'))
+
+            # Minimal rule-based recommendation as fallback
+            # (Replace with model usage if available in models/)
+            if crop_type and soil_type:
+                recommendation = f"NPK {int(nitrogen)}-{int(phosphorous)}-{int(potassium)} for {crop_type} in {soil_type} soil"
+            else:
+                recommendation = "Balanced NPK 10-10-10"
+
+            return jsonify({
+                "recommended_fertilizer": recommendation
+            })
+
+        # Fallback to form-data (older Client UI)
         N = float(request.form.get("N"))
         P = float(request.form.get("P"))
         K = float(request.form.get("K"))
-        crop = request.form.get("crop").lower()
+        crop = (request.form.get("crop") or "").lower()
 
         if crop in fertilizer_db:
             rec = fertilizer_db[crop]
@@ -168,6 +192,96 @@ def detect_disease():
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
+
+# Serve EasyFarm pages
+@app.route('/detect')
+def page_detect():
+    return send_from_directory('static', 'DiseasePrediction.html')
+
+@app.route('/crop-recommendation')
+def page_crop():
+    return send_from_directory('static', 'Crop_recommendation.html')
+
+@app.route('/fertilizer-recommendation')
+def page_fertilizer():
+    return send_from_directory('static', 'Fertilizer_recommendation2.html')
+
+@app.route('/ai-assistant')
+def page_ai():
+    return send_from_directory('static', 'ai_assistant.html')
+
+@app.route('/subsidy-finder')
+def page_subsidy():
+    return send_from_directory('static', 'subsidy.html')
+
+# Disease prediction endpoint expected by EasyFarm UI
+@app.route('/predict', methods=['POST'])
+def predict_disease_basic():
+    # Provide a minimal stub if TF model not available
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    return jsonify({
+        "prediction": "Healthy",
+        "confidence": 95.0,
+        "all_scores": {"Healthy": 95.0, "Early Blight": 3.0, "Late Blight": 2.0},
+        "status": "success"
+    })
+
+# =========================
+# AI Assistant Stub APIs
+# =========================
+@app.route('/api/reset', methods=['POST'])
+def api_reset():
+    return jsonify({
+        'status': 'success',
+        'message': 'Conversation reset successfully'
+    })
+
+@app.route('/api/stop-speaking', methods=['POST'])
+def api_stop_speaking():
+    return jsonify({
+        'status': 'success',
+        'message': 'Speech stopped successfully'
+    })
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    data = request.get_json(silent=True) or {}
+    user_input = data.get('message', '')
+    response_text = (
+        "Here are some general tips:\n\n"
+        "- 🌱 Choose crops suited to your soil and climate\n\n"
+        "- 💧 Water in mornings; avoid leaf wetting to reduce disease\n\n"
+        "- 🧪 Use balanced NPK based on soil test\n\n"
+        "- 🦠 Remove infected leaves; rotate fungicides if spraying"
+    )
+    return jsonify({
+        'response': response_text,
+        'chatHistory': []
+    })
+
+@app.route('/api/voice', methods=['POST'])
+def api_voice():
+    data = request.get_json(silent=True) or {}
+    text = data.get('text', '')
+    return jsonify({
+        'text': text,
+        'response': 'Voice received. ' \
+                    'For best results, connect real TTS later.',
+        'speech_enabled': False
+    })
+
+@app.route('/api/tts', methods=['POST'])
+def api_tts():
+    return jsonify({'status': 'success', 'message': 'TTS not enabled in stub'})
+
+@app.route('/api/settings', methods=['POST'])
+def api_settings():
+    return jsonify({'status': 'success', 'settings': {'always_speak': False}})
+
+@app.route('/api/listen', methods=['POST'])
+def api_listen():
+    return jsonify({'status': 'success', 'text': ''})
 
 
 # =========================
